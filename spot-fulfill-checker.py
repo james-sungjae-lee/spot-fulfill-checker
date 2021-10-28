@@ -1,6 +1,7 @@
 import boto3
 import time
 
+session = boto3.session.Session(profile_name='my-session')
 ec2 = session.client('ec2', region_name='us-west-2')
 
 launch_spec = {
