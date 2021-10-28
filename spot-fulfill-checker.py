@@ -18,17 +18,22 @@ launch_spec = {
 response = ec2.request_spot_instances(
     InstanceCount=1,
     LaunchSpecification=launch_spec,
-    SpotPrice='0.004', # current: 0.0035
+    SpotPrice='0.23', # current: 0.0035
     Type='one-time',
 )
+
 request_id = response['SpotInstanceRequests'][0]['SpotInstanceRequestId']
+describe = ec2.describe_spot_instance_requests(SpotInstanceRequestIds=[request_id])
+code = describe['SpotInstanceRequests'][0]['Status']['Code']
+print(code)
 
 while True:
     describe = ec2.describe_spot_instance_requests(SpotInstanceRequestIds=[request_id])
-    print(describe['SpotInstanceRequests'][0]['Status'])
-    
-    code = describe['SpotInstanceRequests'][0]['Status']['Code']
+    if code != describe['SpotInstanceRequests'][0]['Status']['Code']:
+        code = describe['SpotInstanceRequests'][0]['Status']['Code']
+        print(code)
     if code == 'fulfilled':
+        instance_id = describe['SpotInstanceRequests'][0]['InstanceId']
+        terminate_status = ec2.terminate_instances(InstanceIds=[instance_id])
+        print(terminate_status)
         break
-        
-    time.sleep(1)
