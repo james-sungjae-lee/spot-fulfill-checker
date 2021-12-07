@@ -19,7 +19,7 @@ launch_spec = {
 response = ec2.request_spot_instances(
     InstanceCount=1,
     LaunchSpecification=launch_spec,
-    SpotPrice='0.1', # Current inf1.xlarge Price: 0.0965 (us-east-1a)
+    SpotPrice='0.1', # Current Price: 0.0965 (us-east-1a)
     Type='one-time',
 )
 
@@ -40,14 +40,18 @@ while True:
     
     # if code is "price-too-low", cancel and break
     if code == 'price-too-low':
+        print("Cancel Spot Request")
         cancel_state = ec2.cancel_spot_instance_requests(SpotInstanceRequestIds=[request_id])
         print(cancel_state)
         break
 
     # if code is "fulfilled", cancel and break
     if code == 'fulfilled':
-#         instance_id = describe['SpotInstanceRequests'][0]['InstanceId']
-#         terminate_status = ec2.terminate_instances(InstanceIds=[instance_id])
+        instance_id = describe['SpotInstanceRequests'][0]['InstanceId']
+        print("Terminate Spot Instance")
+        terminate_status = ec2.terminate_instances(InstanceIds=[instance_id])
+        print(terminate_status)
+        print("Cancel Spot Request")
         cancel_state = ec2.cancel_spot_instance_requests(SpotInstanceRequestIds=[request_id])
         print(cancel_state)
         break
